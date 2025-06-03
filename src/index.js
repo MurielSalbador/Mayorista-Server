@@ -10,7 +10,6 @@ import { sequelize } from "./db.js";           // DB productos
 import { sequelize as userDB } from "./dbUser.js"; // DB usuarios
 
 //admins
-import { createInitialAdmins } from './utils/initAdmins.js';
 import authRoutes from "./routes/auth.js";
 import productRoutes from "./routes/products.routes.js";
 import orderRoutes from "./routes/orders.routes.js";
@@ -40,8 +39,6 @@ const startServer = async () => {
 
     await sequelize.sync({ alter: true });
     await userDB.sync({ alter: true });
-
-    await createInitialAdmins(); // Crear admin y superAdmin si no existen
 
     app.listen(PORT, () => {
       console.log(`Servidor escuchando en http://localhost:${PORT}`);
