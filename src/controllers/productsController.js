@@ -1,7 +1,7 @@
-import { Op } from "sequelize";
+import { Sequelize, Op } from "sequelize";
 import { sequelize } from "../db.js";
 import { Products } from "../models/products.js";
-
+import { Categories } from "../models/categories.js";
 
 // Decerementar stock
 export const decrementStock = async (req, res) => {
@@ -9,18 +9,19 @@ export const decrementStock = async (req, res) => {
 
   try {
     const product = await Products.findByPk(productId);
-    if (!product) return res.status(404).json({ message: 'Producto no encontrado' });
+    if (!product)
+      return res.status(404).json({ message: "Producto no encontrado" });
 
     if (product.stock < quantity) {
-      return res.status(400).json({ message: 'Stock insuficiente' });
+      return res.status(400).json({ message: "Stock insuficiente" });
     }
 
     product.stock -= quantity;
     await product.save();
 
-    res.json({ message: 'Stock actualizado', product });
+    res.json({ message: "Stock actualizado", product });
   } catch (error) {
-    res.status(500).json({ message: 'Error al actualizar stock', error });
+    res.status(500).json({ message: "Error al actualizar stock", error });
   }
 };
 
@@ -39,7 +40,9 @@ export const decrementMultipleStock = async (req, res) => {
       }
 
       if (product.stock < quantity) {
-        return res.status(400).json({ message: `Stock insuficiente para ${product.title}` });
+        return res
+          .status(400)
+          .json({ message: `Stock insuficiente para ${product.title}` });
       }
 
       product.stock -= quantity;
@@ -47,16 +50,14 @@ export const decrementMultipleStock = async (req, res) => {
       console.log(`Nuevo stock de ${product.title}: ${product.stock}`);
     }
 
-    res.json({ message: 'Stock de productos actualizado' });
+    res.json({ message: "Stock de productos actualizado" });
   } catch (error) {
     console.error("Error al actualizar el stock:", error);
-    res.status(500).json({ message: 'Error al actualizar múltiples productos', error });
+    res
+      .status(500)
+      .json({ message: "Error al actualizar múltiples productos", error });
   }
 };
-
-
-
-
 
 // Crear producto
 export const createProduct = async (req, res) => {
@@ -85,13 +86,44 @@ export const createProduct = async (req, res) => {
 };
 
 // Obtener productos con filtros
+
 export const getAllProducts = async (req, res) => {
   try {
     const { brand, category, minPrice, maxPrice, sortByPrice } = req.query;
+    console.log("Filtros recibidos:", {
+      brand,
+      category,
+      minPrice,
+      maxPrice,
+      sortByPrice,
+    });
+
     const where = {};
 
-    if (brand && brand !== "all") where.brand = brand;
-    if (category && category !== "all") where.category = category;
+    if (brand && brand !== "all") {
+      where.brand = Sequelize.where(
+        Sequelize.fn("lower", Sequelize.col("brand")),
+        brand.toLowerCase()
+      );
+    }
+
+    if (category && category !== "all") {
+      console.log("Categories:", Categories);
+
+      const cat = await Categories.findOne({
+        where: Sequelize.where(
+          Sequelize.fn("lower", Sequelize.col("nombre")),
+          category.toLowerCase()
+        ),
+      });
+
+      if (!cat) {
+        console.log("Categoría no encontrada:", category);
+        return res.status(404).json({ error: "Categoría no encontrada" });
+      }
+
+      where.categoryId = cat.id;
+    }
 
     if (minPrice && maxPrice) {
       where.price = { [Op.between]: [Number(minPrice), Number(maxPrice)] };
@@ -105,9 +137,22 @@ export const getAllProducts = async (req, res) => {
     if (sortByPrice === "asc") order.push(["price", "ASC"]);
     else if (sortByPrice === "desc") order.push(["price", "DESC"]);
 
-    const products = await Products.findAll({ where, order });
+    console.log("Consulta Sequelize - where:", where, "order:", order);
+
+    const products = await Products.findAll({
+      where,
+      order,
+      include: [
+        {
+          model: Categories,
+          attributes: ["id", "nombre"],
+        },
+      ],
+    });
+
     res.json(products);
   } catch (err) {
+    console.error("❌ Error en getAllProducts:", err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -149,4 +194,39 @@ export const deleteProduct = async (req, res) => {
   const deleted = await Products.destroy({ where: { id } });
   if (!deleted) return res.status(404).json({ error: "No se pudo eliminar" });
   res.json({ message: "Producto eliminado" });
+};
+
+// Obtener productos por categoría
+export const getProductsByCategory = async (req, res) => {
+  const { categoryId } = req.params;
+  try {
+    const products = await Products.findAll({
+      where: { categoryId },
+      include: [{ model: Categories }],
+    });
+    res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: "Error al obtener productos por categoría" });
+  }
+};
+
+export const getProductsByBrand = async (req, res) => {
+  const { slug } = req.params;
+
+  try {
+    const products = await Products.findAll({
+      where: Sequelize.where(
+        Sequelize.fn("lower", Sequelize.col("brand")),
+        slug.toLowerCase()
+      ),
+      include: [{ model: Categories }],
+    });
+
+    if (!products.length)
+      return res.status(404).json({ error: "No se encontraron productos para esa marca" });
+
+    res.json(products);
+  } catch (error) {
+    res.status(500).json({ error: "Error al obtener productos por marca" });
+  }
 };

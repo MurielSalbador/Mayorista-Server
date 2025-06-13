@@ -30,6 +30,11 @@ const Orders = sequelize.define("orders", {
     type: DataTypes.STRING,
     allowNull: false,
   },
+  status: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    defaultValue: "Pendiente",  // Valor inicial
+  },
 });
 
 export default Orders;
