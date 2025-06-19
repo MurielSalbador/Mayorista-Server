@@ -2,7 +2,7 @@
 
 export const searchProducts = async ({ search }) => {
   try {
-    const res = await fetch('http://localhost:3000/api/products') // corregido
+     const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/products`)
     const allProducts = await res.json()
 
     if (!search.trim()) return []

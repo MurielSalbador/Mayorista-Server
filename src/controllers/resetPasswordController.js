@@ -22,7 +22,7 @@ export const sendResetEmail = async (req, res) => {
     const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET || "rubio2025", { expiresIn: "1h" });
     console.log("[sendResetEmail] Token generado:", token);
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `${process.env.FRONTEND_URL || "http://localhost:5173"}/reset-password/${token}`;
     console.log("[sendResetEmail] Enlace de reset:", resetLink);
 
     console.log("MAIL_USER:", process.env.MAIL_USER);

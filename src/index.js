@@ -31,7 +31,16 @@ console.log("Reset password routes cargadas");
 
 
 const app = express();
-app.use(cors({ origin: "http://localhost:5173" }));
+
+app.use(cors({
+  origin: [
+    "http://localhost:5173",
+    "https://glittering-sopapillas-cc0a40.netlify.app"
+  ],
+  credentials: true
+}));
+
+
 app.use(express.json());
 
 // Rutas existentes
@@ -47,18 +56,18 @@ const PORT = 3000;
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await userDB.authenticate();   // autenticar también la base de usuarios
-
-    console.log("Bases de datos conectadas.");
+    await userDB.authenticate();
+    console.log('✅ Conectado a ambas bases de datos');
 
     await sequelize.sync({ alter: true });
     await userDB.sync({ alter: true });
+    console.log('🛠️ Tablas sincronizadas correctamente.');
 
     app.listen(PORT, () => {
-      console.log(`Servidor escuchando en http://localhost:${PORT}`);
+      console.log(`🚀 Servidor escuchando en http://localhost:${PORT}`);
     });
   } catch (error) {
-    console.error("Error al iniciar el servidor:", error);
+    console.error("❌ Error al iniciar el servidor:", error);
   }
 };
 
