@@ -55,7 +55,7 @@ app.use("/api/password", resetPasswordRoutes);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    console.log("✅ Conectado a MySQL exitosamente.");
+    console.log("✅ Conectado base de datos exitosamente.");
 
     await sequelize.sync({ alter: true });
     console.log("🛠️ Tablas sincronizadas correctamente.");

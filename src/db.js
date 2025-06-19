@@ -2,10 +2,11 @@ import { Sequelize } from "sequelize";
 import dotenv from "dotenv";
 dotenv.config();
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 const config = isProduction
   ? {
+    
       db: process.env.DB_NAME,
       user: process.env.DB_USER,
       pass: process.env.DB_PASSWORD,
