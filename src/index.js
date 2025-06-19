@@ -7,7 +7,6 @@ import cors from "cors";
 
 // db
 import { sequelize } from "./db.js";           // DB productos
-import { sequelize as userDB } from "./dbUser.js"; // DB usuarios
 
 // rutas
 import authRoutes from "./routes/auth.js";
@@ -58,11 +57,9 @@ app.use("/api/password", resetPasswordRoutes);
 const startServer = async () => {
   try {
     await sequelize.authenticate();
-    await userDB.authenticate();
-    console.log('✅ Conectado a ambas bases de datos');
+    console.log('✅ Conectado a la base de datos');
 
     await sequelize.sync({ alter: true });
-    await userDB.sync({ alter: true });
     console.log('🛠️ Tablas sincronizadas correctamente.');
 
     app.listen(PORT, () => {
@@ -72,5 +69,6 @@ const startServer = async () => {
     console.error("❌ Error al iniciar el servidor:", error);
   }
 };
+
 
 startServer();
