@@ -35,7 +35,8 @@ const app = express();
 app.use(cors({
   origin: [
     "http://localhost:5173",
-    "https://glittering-sopapillas-cc0a40.netlify.app"
+    "https://glittering-sopapillas-cc0a40.netlify.app",
+    "https://68544137deae926d74c4cb8b--glittering-sopapillas-cc0a40.netlify.app"
   ],
   credentials: true
 }));
