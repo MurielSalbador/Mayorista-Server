@@ -1,4 +1,4 @@
-// src/config/dbUser.js
+
 import { Sequelize } from "sequelize";
 
 export const sequelize = new Sequelize({
