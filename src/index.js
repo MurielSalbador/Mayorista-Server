@@ -22,6 +22,9 @@ import { Products } from "./models/products.js";
 import { Categories } from "./models/categories.js";
 import "./models/user.js";
 
+import { PORT } from "./config.js";
+
+
 // asociaciones
 Categories.hasMany(Products, { foreignKey: "categoryId" });
 Products.belongsTo(Categories, { foreignKey: "categoryId" });
@@ -51,8 +54,6 @@ app.use("/api/orders", orderRoutes);
 app.use("/api/users", userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use("/api/password", resetPasswordRoutes);
-
-const PORT = 3000;
 
 const startServer = async () => {
   try {
